@@ -1,181 +1,211 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-<!--    <title>Freelance Platform</title>-->
-<!--    <link rel="stylesheet" href="style.css">-->
-<!--    <script defer src="app.js"></script>-->
-<!--</head>-->
-<!--<body>-->
-<!--    <nav>-->
-<!--        <h1>Freelance Hub</h1>-->
-<!--        <button onclick="showSection('login')">Login</button>-->
-<!--        <button onclick="showSection('register')">Register</button>-->
-<!--        <button onclick="logout()">Logout</button>-->
-<!--    </nav>-->
-<!--    -->
-<!--    <main>-->
-<!--        <section id="login" class="hidden">-->
-<!--            <h2>Login</h2>-->
-<!--            <input type="email" id="login-email" placeholder="Email">-->
-<!--            <input type="password" id="login-password" placeholder="Password">-->
-<!--            <button onclick="login()">Login</button>-->
-<!--        </section>-->
-<!--        -->
-<!--        <section id="register" class="hidden">-->
-<!--            <h2>Register</h2>-->
-<!--            <input type="email" id="register-email" placeholder="Email">-->
-<!--            <input type="password" id="register-password" placeholder="Password">-->
-<!--            <select id="register-role">-->
-<!--                <option value="freelancer">Freelancer</option>-->
-<!--                <option value="client">Client</option>-->
-<!--            </select>-->
-<!--            <button onclick="register()">Register</button>-->
-<!--        </section>-->
-<!--        -->
-<!--        <section id="dashboard" class="hidden">-->
-<!--            <h2>Dashboard</h2>-->
-<!--            <div id="client-dashboard" class="hidden">-->
-<!--                <h3>Post a Job</h3>-->
-<!--                <input type="text" id="job-title" placeholder="Job Title">-->
-<!--                <textarea id="job-description" placeholder="Job Description"></textarea>-->
-<!--                <button onclick="postJob()">Post Job</button>-->
-<!--                -->
-<!--                <h3>View Applicants</h3>-->
-<!--                <div id="applications-list"></div>-->
-<!--            </div>-->
-<!--            -->
-<!--            <div id="freelancer-dashboard" class="hidden">-->
-<!--                <h3>Browse Jobs</h3>-->
-<!--                <div id="job-list"></div>-->
-<!--            </div>-->
-<!--        </section>-->
-<!--    </main>-->
-<!--</body>-->
-<!--</html>-->
-
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freelance Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script type="module" defer src="app.js"></script>
 </head>
-<!--<body>-->
-<!--    <nav>-->
-<!--        <h1>Freelance Hub</h1>-->
-<!--        <button onclick="showSection('login')">Login</button>-->
-<!--        <button onclick="showSection('register')">Register</button>-->
-<!--        <button onclick="logout()">Logout</button>-->
-<!--    </nav>-->
-
-<!--    <main>-->
-<!--        &lt;!&ndash; Login Section &ndash;&gt;-->
-<!--        <section id="login" class="hidden">-->
-<!--            <h2>Login</h2>-->
-<!--            <input type="email" id="login-email" placeholder="Email">-->
-<!--            <input type="password" id="login-password" placeholder="Password">-->
-<!--            <button onclick="login()">Login</button>-->
-<!--        </section>-->
-
-<!--        &lt;!&ndash; Registration Section &ndash;&gt;-->
-<!--        <section id="register" class="hidden">-->
-<!--            <h2>Register</h2>-->
-<!--            <input type="email" id="register-email" placeholder="Email">-->
-<!--            <input type="password" id="register-password" placeholder="Password">-->
-<!--            <select id="register-role">-->
-<!--                <option value="freelancer">Freelancer</option>-->
-<!--                <option value="client">Client</option>-->
-<!--            </select>-->
-<!--            <button onclick="register()">Register</button>-->
-<!--        </section>-->
-
-<!--        &lt;!&ndash; Dashboard Section &ndash;&gt;-->
-<!--        <section id="dashboard" class="hidden">-->
-<!--            <h2>Dashboard</h2>-->
-
-<!--            &lt;!&ndash; Client Dashboard &ndash;&gt;-->
-<!--           &lt;!&ndash; Client Dashboard &ndash;&gt;-->
-<!--<div id="client-dashboard" class="hidden">-->
-<!--    <h3>Post a Job</h3>-->
-<!--    <input type="text" id="job-title" placeholder="Job Title">-->
-<!--    <textarea id="job-description" placeholder="Job Description"></textarea>-->
-<!--    <input type="number" id="job-budget" placeholder="Budget">-->
-<!--    <input type="date" id="job-deadline" placeholder="Deadline">-->
-<!--    <button onclick="postJob()">Post Job</button>-->
-
-<!--    <h3>View Applicants</h3>-->
-<!--    <div id="applications-list"></div>-->
-<!--</div>-->
-
-
-<!--            &lt;!&ndash; Freelancer Dashboard &ndash;&gt;-->
-<!--            <div id="freelancer-dashboard" class="hidden">-->
-<!--                <h3>Browse Jobs</h3>-->
-<!--                <div id="job-list"></div>-->
-<!--            </div>-->
-<!--        </section>-->
-<!--    </main>-->
-<!--</body>-->
 
 <body>
-    <nav>
-        <h1>Freelance Hub</h1>
-        <button onclick="showSection('login')">Login</button>
-        <button onclick="showSection('register')">Register</button>
-        <button onclick="logout()">Logout</button>
-        <p id="user-info" class="hidden"></p> <!-- ✅ Show logged-in user -->
-    </nav>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo" onclick="showSection('home'); return false;">FreelanceHub</a>
+                <div class="nav-links">
+                    <a href="#" onclick="showSection('home'); return false;">Home</a>
+                    <a href="#" onclick="showSection('about'); return false;">About</a>
+                    <a href="#" onclick="showSection('contact'); return false;">Contact</a>
+                </div>
+                <div class="auth-buttons">
+                    <span id="user-info" class="user-info hidden"></span>
+                    <button id="logout-btn" class="btn btn-outline hidden" onclick="logout()">Logout</button>
+                    <button class="btn btn-outline" onclick="showSection('login')">Login</button>
+                    <button class="btn btn-primary" onclick="showSection('register')">Register</button>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-    <main>
-        <!-- Login Section -->
-        <section id="login" class="hidden">
+    <main class="container">
+        <!-- Public Sections -->
+        <section id="home" class="active">
+            <h2>Welcome to FreelanceHub</h2>
+            <p>Connect with top freelancers or find your next project. Whether you're a client looking for talent or a
+                freelancer seeking work, we've got you covered.</p>
+
+            <div class="grid-cols-2 mt-3">
+                <div class="card">
+                    <h3>For Clients</h3>
+                    <p>Post your projects and find skilled freelancers to bring your ideas to life.</p>
+                    <button class="btn btn-primary mt-3" onclick="showSection('register')">Hire Talent</button>
+                </div>
+                <div class="card">
+                    <h3>For Freelancers</h3>
+                    <p>Find exciting projects that match your skills and grow your career.</p>
+                    <button class="btn btn-primary mt-3" onclick="showSection('register')">Find Work</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="about">
+            <h2>About Us</h2>
+            <p>FreelanceHub is a platform that connects businesses with freelance professionals. Our mission is to make
+                freelancing simple, secure, and rewarding for both clients and freelancers.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Have questions? Reach out to our support team at support@freelancehub.com</p>
+        </section>
+
+        <!-- Auth Sections -->
+        <section id="login">
             <h2>Login</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-password" placeholder="Password">
-            <button onclick="login()">Login</button>
+            <form onsubmit="event.preventDefault(); login();">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <p class="mt-3">Don't have an account? <a href="#"
+                        onclick="showSection('register'); return false;">Register here</a></p>
+            </form>
         </section>
 
-        <!-- Registration Section -->
-        <section id="register" class="hidden">
+        <section id="register">
             <h2>Register</h2>
-            <input type="email" id="register-email" placeholder="Email">
-            <input type="password" id="register-password" placeholder="Password">
-            <select id="register-role">
-                <option value="freelancer">Freelancer</option>
-                <option value="client">Client</option>
-            </select>
-            <button onclick="register()">Register</button>
+            <form onsubmit="event.preventDefault(); register();">
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-role">I am a</label>
+                    <select id="register-role" required>
+                        <option value="">Select role</option>
+                        <option value="client">Client (I want to hire)</option>
+                        <option value="freelancer">Freelancer (I want to work)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+                <p class="mt-3">Already have an account? <a href="#" onclick="showSection('login'); return false;">Login
+                        here</a></p>
+            </form>
         </section>
 
-        <!-- Dashboard Section -->
+        <!-- Dashboard Sections -->
         <section id="dashboard" class="hidden">
-            <h2>Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="sidebar">
+                    <ul class="sidebar-menu">
+                        <li><a href="#" onclick="showDashboardView('overview')"><i class="fas fa-tachometer-alt"></i>
+                                Overview</a></li>
+                        <li id="client-menu" class="hidden">
+                            <a href="#" onclick="showDashboardView('post-job')"><i class="fas fa-plus-circle"></i> Post
+                                Job</a>
+                        </li>
+                        <li id="client-menu-2" class="hidden">
+                            <a href="#" onclick="showDashboardView('client-applications')"><i
+                                    class="fas fa-list-alt"></i> Applications</a>
+                        </li>
+                        <li id="freelancer-menu" class="hidden">
+                            <a href="#" onclick="showDashboardView('freelancer-jobs')"><i class="fas fa-briefcase"></i>
+                                Available Jobs</a>
+                        </li>
+                        <li id="freelancer-menu-2" class="hidden">
+                            <a href="#" onclick="showDashboardView('freelancer-applications')"><i
+                                    class="fas fa-file-alt"></i> My Applications</a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="showDashboardView('notifications')"><i class="fas fa-bell"></i>
+                                Notifications</a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </li>
+                    </ul>
+                </div>
 
-            <!-- Client Dashboard -->
-            <!-- Add this inside the Client Dashboard -->
-<div id="client-dashboard" class="hidden">
-    <h3>Notifications</h3>
-    <div id="notifications-list"></div>  <!-- ✅ Add this -->
-</div>
+                <div class="dashboard-content">
+                    <!-- Client Dashboard Views -->
+                    <div id="client-dashboard" class="hidden">
+                        <div id="client-overview" class="dashboard-view">
+                            <h2>Client Dashboard</h2>
+                            <p>Welcome to your client dashboard. Here you can post jobs and manage applications.</p>
+                        </div>
 
+                        <div id="post-job" class="dashboard-view hidden">
+                            <h2>Post a New Job</h2>
+                            <form onsubmit="event.preventDefault(); postJob();">
+                                <div class="form-group">
+                                    <label for="job-title">Job Title</label>
+                                    <input type="text" id="job-title" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="job-description">Description</label>
+                                    <textarea id="job-description" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="job-budget">Budget ($)</label>
+                                    <input type="number" id="job-budget" min="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="job-deadline">Deadline</label>
+                                    <input type="date" id="job-deadline" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Post Job</button>
+                            </form>
+                        </div>
 
-            <!-- Freelancer Dashboard -->
-            <div id="freelancer-dashboard" class="hidden">
-                <h3>Browse Jobs</h3>
-                <div id="job-list"></div>
+                        <div id="client-applications" class="dashboard-view hidden">
+                            <h2>Job Applications</h2>
+                            <div id="applications-list" class="applications-list"></div>
+                        </div>
+                    </div>
 
-                <h3>My Applications</h3>  <!-- ✅ Freelancers see their applications -->
-                <div id="my-applications"></div>
-                <div id="applications-list"></div>  <!-- ✅ Add this -->
+                    <!-- Freelancer Dashboard Views -->
+                    <div id="freelancer-dashboard" class="hidden">
+                        <div id="freelancer-overview" class="dashboard-view">
+                            <h2>Freelancer Dashboard</h2>
+                            <p>Welcome to your freelancer dashboard. Browse available jobs and manage your applications.
+                            </p>
+                        </div>
 
+                        <div id="freelancer-jobs" class="dashboard-view hidden">
+                            <h2>Available Jobs</h2>
+                            <div id="job-list" class="job-list"></div>
+                        </div>
+
+                        <div id="freelancer-applications" class="dashboard-view hidden">
+                            <h2>My Applications</h2>
+                            <div id="freelancer-applications-list" class="applications-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Common Views -->
+                    <div id="notifications-view" class="dashboard-view hidden">
+                        <h2>Notifications</h2>
+                        <div id="notifications-list" class="notifications-list"></div>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
+
+    <script src="app.js" type="module"></script>
 </body>
 
 </html>
