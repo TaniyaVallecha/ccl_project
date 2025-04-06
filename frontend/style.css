@@ -12,6 +12,9 @@
      --gray: #6c757d;
      --light-gray: #e9ecef;
  }
+html {
+  scroll-behavior: smooth;
+}
 
  * {
      margin: 0;
@@ -261,7 +264,7 @@
 
  /* Job List Styles */
  .job-list,
- .applications-list,
+ #applications-list,
  .notifications-list {
      display: grid;
      gap: 20px;
@@ -319,7 +322,6 @@
  .notification-item {
      border-left-color: var(--accent);
  }
-
  .notification-item small {
      color: var(--gray);
      font-size: 0.8rem;
@@ -416,3 +418,5 @@
          grid-template-columns: 1fr;
      }
  }
+
+
