@@ -4,10 +4,18 @@ const SUPABASE_URL = "https://ogoeydbprqrdimvoefnm.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nb2V5ZGJwcnFyZGltdm9lZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2ODcyMTgsImV4cCI6MjA1OTI2MzIxOH0.LouHyANVXKRjgmh4gqKxTKhrai-tJKdYo9PSnzAnF9g";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+
+console.log("Supabase initialized:", supabase !== undefined);
 // Function to toggle section visibility
 function showSection(sectionId) {
-    document.querySelectorAll('section').forEach(section => section.classList.add('hidden'));
-    document.getElementById(sectionId).classList.remove('hidden');
+     document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(sectionId)?.classList.add('active');
+    
+    if (sectionId === 'dashboard') {
+        loadUserDashboard();
+    }
 }
 
 // Function to log in the user
@@ -15,59 +23,29 @@ async function login() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
     if (error) {
         alert("Login failed: " + error.message);
         console.error("Login failed:", error.message);
         return;
     }
+    
     console.log("Logged in successfully", data);
+    document.getElementById('logout-btn').classList.remove('hidden');
     loadUserDashboard();
+    showSection('dashboard');
 }
 
 // Function to register a new user
-//async function register() {
-//    const email = document.getElementById('register-email').value;
-//    const password = document.getElementById('register-password').value;
-//    const role = document.getElementById('register-role').value;
-//
-//    // Sign up the user
-//    const { data, error } = await supabase.auth.signUp({ email, password });
-//
-//    if (error) {
-//        console.error("Registration failed:", error.message);
-//        alert("Error: " + error.message);
-//        return;
-//    }
-//
-//    console.log("Registered successfully", data);
-//
-//    // Ensure the user exists before inserting into 'users' table
-//    const { data: userData, error: userError } = await supabase.auth.getUser();
-//
-//    if (userError || !userData.user) {
-//        console.error("No active user found");
-//        alert("Registration successful, but login again to continue.");
-//        return;
-//    }
-//
-//    // Insert the user into the 'users' table
-//    const { error: insertError } = await supabase
-//        .from('users')
-//        .insert([{ email, role }]);
-//
-//    if (insertError) {
-//        console.error("Failed to insert user into users table:", insertError.message);
-//        alert("Error adding user to database: " + insertError.message);
-//    } else {
-//        console.log("User added to users table");
-//        alert("Registration successful! You can now log in.");
-//        showSection('login');
-//    }
-//}
 async function register() {
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
     const role = document.getElementById('register-role').value;
+
+    if (!email || !password || !role) {
+        alert("Please fill in all fields");
+        return;
+    }
 
     const { data, error } = await supabase.auth.signUp({ email, password });
 
@@ -77,24 +55,20 @@ async function register() {
         return;
     }
 
-    alert("Registration successful! Please check your email to confirm your account before logging in.");
-
-    // 🚀 Insert user into `users` table AFTER signing up
+    // Insert user into 'users' table
     const { error: insertError } = await supabase
         .from('users')
         .insert([{ email, role }]);
 
     if (insertError) {
         console.error("Failed to insert user into users table:", insertError.message);
+        alert("Registration successful, but there was an error saving your profile. Please contact support.");
     } else {
-        console.log("User added to users table");
+        alert("Registration successful! Please check your email to confirm your account before logging in.");
     }
 
     showSection('login');
 }
-
-
-
 
 // Function to log out the user
 async function logout() {
@@ -104,57 +78,20 @@ async function logout() {
         console.error("Logout failed:", error.message);
     } else {
         console.log("Logged out successfully");
-        showSection('login');
+        document.getElementById('logout-btn').classList.add('hidden');
+        document.getElementById('user-info').classList.add('hidden');
+        showSection('landing');
     }
 }
 
 // Function to determine user role and load the correct dashboard
-//async function loadUserDashboard() {
-//    const { data: user, error: userError } = await supabase.auth.getUser();
-//
-//    if (userError || !user?.user) {
-//        console.error("Error fetching authenticated user:", userError?.message);
-//        alert("User authentication failed. Please log in again.");
-//        return;
-//    }
-//
-//    console.log("Authenticated user:", user.user.email);
-//
-//    // Fetch role using email
-//    const { data: userData, error } = await supabase
-//        .from('users')
-//        .select('role')
-//        .eq('email', user.user.email)
-//        .maybeSingle();  // Ensures only one row is returned
-//
-//    if (error) {
-//        console.error("Error fetching user role:", error.message);
-//        alert("Failed to fetch user role. Please try again.");
-//        return;
-//    }
-//
-//    console.log("User Role:", userData.role);
-//
-//    if (userData.role === "client") {
-//        showSection('client-dashboard');
-//        document.getElementById('client-dashboard').classList.remove('hidden');
-//        postJob();
-//    } else if (userData.role === "freelancer") {
-//        //showSection('freelancer-dashboard');
-//        showSection('dashboard');
-//        document.getElementById('freelancer-dashboard').classList.remove('hidden');
-//        fetchJobs();
-//      //  fetchJobs();
-//    } else {
-//        console.error("Invalid role detected");
-//    }
-//}
 async function loadUserDashboard() {
     const { data: user, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user?.user) {
         console.error("Error fetching authenticated user:", userError?.message);
         alert("User authentication failed. Please log in again.");
+        showSection('login');
         return;
     }
 
@@ -186,23 +123,17 @@ async function loadUserDashboard() {
 
     // Role-based dashboard display
     if (userRole === "client") {
-        showSection('dashboard');
         document.getElementById('client-dashboard').classList.remove('hidden');
-
-        // ✅ Fetch client notifications (job applications)
+        document.getElementById('freelancer-dashboard').classList.add('hidden');
+        fetchClientJobs();
+        fetchClientApplications();
         fetchClientNotifications();
-    }
-    else if (userRole === "freelancer") {
-        showSection('dashboard');
+    } else if (userRole === "freelancer") {
         document.getElementById('freelancer-dashboard').classList.remove('hidden');
-
-        // ✅ Fetch available jobs
+        document.getElementById('client-dashboard').classList.add('hidden');
         fetchJobs();
-
-        // ✅ Fetch freelancer's applications
         fetchFreelancerApplications();
-    }
-    else {
+    } else {
         console.error("Invalid role detected");
         alert("Invalid role. Please contact support.");
     }
@@ -210,18 +141,12 @@ async function loadUserDashboard() {
 
 // Function to post a job (Client Only)
 async function postJob() {
-    const title = document.getElementById('job-title')?.value.trim();
-    const description = document.getElementById('job-description')?.value.trim();
-    const budget = document.getElementById('job-budget')?.value;
-    const deadline = document.getElementById('job-deadline')?.value;
-
-    console.log("Title:", title);
-    console.log("Description:", description);
-    console.log("Budget:", budget);
-    console.log("Deadline:", deadline);
+    const title = document.getElementById('job-title').value.trim();
+    const description = document.getElementById('job-description').value.trim();
+    const budget = document.getElementById('job-budget').value;
+    const deadline = document.getElementById('job-deadline').value;
 
     if (!title || !description || !budget || !deadline) {
-        console.error("Job title and description cannot be empty.");
         alert("Please fill in all job details.");
         return;
     }
@@ -246,27 +171,69 @@ async function postJob() {
     } else {
         console.log("Job posted successfully");
         alert("Job posted successfully!");
-        fetchJobs();  // Refresh job list
+        document.getElementById('post-job-modal').classList.add('hidden');
+        fetchClientJobs();
     }
 }
 
+// Function to fetch jobs posted by the client
+async function fetchClientJobs() {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) return;
+
+    const clientEmail = userData.user.email;
+    const jobsList = document.getElementById('client-jobs-list');
+
+    const { data: jobs, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('client_email', clientEmail)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("Error fetching jobs:", error.message);
+        jobsList.innerHTML = "<p>Error loading jobs. Please try again.</p>";
+        return;
+    }
+
+    jobsList.innerHTML = "";
+
+    if (jobs.length === 0) {
+        jobsList.innerHTML = "<p>You haven't posted any jobs yet.</p>";
+        return;
+    }
+
+    jobs.forEach(job => {
+        const jobItem = document.createElement('div');
+        jobItem.classList.add('job-item');
+        jobItem.innerHTML = `
+            <h4>${job.title}</h4>
+            <p>${job.description}</p>
+            <p><strong>Budget:</strong> $${job.budget} | <strong>Deadline:</strong> ${new Date(job.deadline).toLocaleDateString()}</p>
+            <p><strong>Status:</strong> ${job.status}</p>
+        `;
+        jobsList.appendChild(jobItem);
+    });
+}
 
 // Function to fetch available jobs for freelancers
 async function fetchJobs() {
     const jobList = document.getElementById('job-list');
-    if (!jobList) {
-        console.error("Job list element not found!");
-        return;
-    }
+    if (!jobList) return;
 
-    const { data: jobs, error } = await supabase.from('jobs').select('*');
+    const { data: jobs, error } = await supabase
+        .from('jobs')
+        .select('*')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Error fetching jobs:", error.message);
+        jobList.innerHTML = "<p>Error loading jobs. Please try again.</p>";
         return;
     }
 
-    jobList.innerHTML = ""; // Clear previous jobs
+    jobList.innerHTML = "";
 
     if (jobs.length === 0) {
         jobList.innerHTML = "<p>No jobs available at the moment.</p>";
@@ -279,14 +246,13 @@ async function fetchJobs() {
         jobItem.innerHTML = `
             <h4>${job.title}</h4>
             <p>${job.description}</p>
-            <button onclick="applyJob('${job.id}')">Apply</button>
+            <p><strong>Budget:</strong> $${job.budget} | <strong>Deadline:</strong> ${new Date(job.deadline).toLocaleDateString()}</p>
+            <button class="btn btn-primary" onclick="applyJob('${job.id}')">Apply</button>
         `;
         jobList.appendChild(jobItem);
     });
 }
 
-
-// Function to apply for a job
 // Function to apply for a job
 async function applyJob(jobId) {
     const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -299,20 +265,20 @@ async function applyJob(jobId) {
 
     const freelancerEmail = userData.user.email;
 
-    // Check if the freelancer already applied for the job
+    // Check if already applied
     const { data: existingApplication } = await supabase
         .from('applications')
         .select('*')
         .eq('job_id', jobId)
         .eq('freelancer_email', freelancerEmail)
-        .single();
+        .maybeSingle();
 
     if (existingApplication) {
         alert("You have already applied for this job.");
         return;
     }
 
-    // Fetch job details to get the client email
+    // Get job details
     const { data: jobData, error: jobError } = await supabase
         .from('jobs')
         .select('client_email, title')
@@ -325,12 +291,9 @@ async function applyJob(jobId) {
         return;
     }
 
-    const clientEmail = jobData.client_email;
-    const jobTitle = jobData.title;
-
-    // Insert the application into the applications table
+    // Insert application
     const { error: insertError } = await supabase.from('applications').insert([
-        { job_id: jobId, freelancer_email: freelancerEmail, status: 'Pending' }
+        { job_id: jobId, freelancer_email: freelancerEmail, status: 'Pending', client_email: jobData.client_email }
     ]);
 
     if (insertError) {
@@ -339,50 +302,40 @@ async function applyJob(jobId) {
         return;
     }
 
-    console.log("Applied successfully");
-    alert("Application submitted!");
+    // Send notification to client
+    await sendNotification(jobData.client_email, `A freelancer has applied for your job: "${jobData.title}"`);
 
-    // Send a notification to the client
-    await sendNotification(clientEmail, `A freelancer has applied for your job: "${jobTitle}"`);
+    alert("Application submitted successfully!");
+    fetchJobs();
+    fetchFreelancerApplications();
 }
 
-// Function to send a notification to the client
-async function sendNotification(clientEmail, message) {
-    const { error } = await supabase.from('notifications').insert([
-        { user_email: clientEmail, message }
-    ]);
-
-    if (error) {
-        console.error("Failed to send notification:", error.message);
-    } else {
-        console.log("Notification sent to client:", clientEmail);
-    }
-}
-
-
-// Function to fetch job applications (Client Only)
-// Function to fetch job applications for the logged-in client
-async function fetchApplications() {
+// Function to fetch applications for the logged-in client
+async function fetchClientApplications() {
     const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !userData?.user) {
-        console.error("User not logged in:", userError?.message);
-        return;
-    }
+    if (userError || !userData?.user) return;
 
     const clientEmail = userData.user.email;
+    const appList = document.getElementById('applications-list');
 
-    // ✅ Fetch applications with job titles using a raw SQL function
-    const { data: applications, error } = await supabase.rpc('fetch_client_applications', {
-        client_email: clientEmail
-    });
+    const { data: applications, error } = await supabase
+        .from('applications')
+        .select(`
+            id,
+            status,
+            created_at,
+            freelancer_email,
+            jobs (title)
+        `)
+        .eq('client_email', clientEmail)
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Error fetching applications:", error.message);
+        appList.innerHTML = "<p>Error loading applications. Please try again.</p>";
         return;
     }
 
-    const appList = document.getElementById('applications-list');
     appList.innerHTML = "";
 
     if (!applications || applications.length === 0) {
@@ -392,81 +345,50 @@ async function fetchApplications() {
 
     applications.forEach(app => {
         const appItem = document.createElement('div');
+        appItem.classList.add('application-item');
         appItem.innerHTML = `
-            <p>Job: ${app.job_title}</p>
-            <p>Freelancer: ${app.freelancer_email} | Status: ${app.status}</p>
-            <button onclick="approveApplication(${app.id})">Approve</button>
-            <button onclick="declineApplication(${app.id})">Decline</button>
+            <h4>${app.jobs?.title || 'No title'}</h4>
+            <p><strong>Freelancer:</strong> ${app.freelancer_email}</p>
+            <p><strong>Status:</strong> ${app.status}</p>
+            <p><small>Applied on: ${new Date(app.created_at).toLocaleString()}</small></p>
+            <div class="mt-20">
+                <button class="btn btn-success" onclick="updateApplicationStatus('${app.id}', 'Approved')">Approve</button>
+                <button class="btn btn-danger" onclick="updateApplicationStatus('${app.id}', 'Declined')">Decline</button>
+            </div>
         `;
         appList.appendChild(appItem);
     });
 }
 
-
-// Function to approve a freelancer's application (Client Only)
-// Function to approve a freelancer's application
-async function approveApplication(applicationId) {
-    const { error } = await supabase
-        .from('applications')
-        .update({ status: 'Approved' })
-        .eq('id', applicationId);
-
-    if (error) {
-        console.error("Approval failed:", error.message);
-    } else {
-        console.log("Application approved");
-        alert("Application approved!");
-        fetchApplications();
-    }
-}
-
-// Function to decline a freelancer's application
-async function declineApplication(applicationId) {
-    const { error } = await supabase
-        .from('applications')
-        .update({ status: 'Declined' })
-        .eq('id', applicationId);
-
-    if (error) {
-        console.error("Decline failed:", error.message);
-    } else {
-        console.log("Application declined");
-        alert("Application declined.");
-        fetchApplications();
-    }
-}
-
-// Fetch applications for the logged-in freelancer
+// Function to fetch applications for the logged-in freelancer
 async function fetchFreelancerApplications() {
     const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !userData?.user) {
-        console.error("Error getting freelancer info:", userError?.message);
-        return;
-    }
+    if (userError || !userData?.user) return;
 
     const freelancerEmail = userData.user.email;
+    const appList = document.getElementById('applications-list');
 
-    // ✅ Fetch applications with job titles using the new SQL function
-    const { data: applications, error } = await supabase.rpc('fetch_freelancer_applications', {
-        freelancer_email: freelancerEmail
-    });
+    const { data: applications, error } = await supabase
+        .from('applications')
+        .select(`
+            id,
+            status,
+            created_at,
+            jobs (title)
+        `)
+        .eq('freelancer_email', freelancerEmail)
+        .order('created_at', { ascending: false });
 
     if (error) {
-        console.error("Error fetching freelancer applications:", error.message);
+        console.error("Error fetching applications:", error.message);
+        appList.innerHTML = "<p>Error loading applications. Please try again.</p>";
         return;
     }
 
-    const applicationsList = document.getElementById('applications-list');
-    if (!applicationsList) {
-        console.error("Applications list element not found!");
-        return;
-    }
+    appList.innerHTML = "";
 
-    applicationsList.innerHTML = ""; // Clear previous applications
-
-    if (applications.length === 0) {
-        applicationsList.innerHTML = "<p>No applications found.</p>";
+    if (!applications || applications.length === 0) {
+        appList.innerHTML = "<p>You haven't applied to any jobs yet.</p>";
         return;
     }
 
@@ -474,63 +396,103 @@ async function fetchFreelancerApplications() {
         const appItem = document.createElement('div');
         appItem.classList.add('application-item');
         appItem.innerHTML = `
-            <p>Job: ${app.job_title} | Status: ${app.status}</p>
+            <h4>${app.jobs?.title || 'No title'}</h4>
+            <p><strong>Status:</strong> ${app.status}</p>
+            <p><small>Applied on: ${new Date(app.created_at).toLocaleString()}</small></p>
         `;
-        applicationsList.appendChild(appItem);
+        appList.appendChild(appItem);
     });
-
-    console.log("Fetched freelancer applications:", applications);
 }
-async function fetchClientNotifications() {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
 
-    if (userError || !userData?.user) {
-        console.error("User not logged in:", userError?.message);
+// Function to update application status
+async function updateApplicationStatus(applicationId, status) {
+    const { error } = await supabase
+        .from('applications')
+        .update({ status })
+        .eq('id', applicationId);
+
+    if (error) {
+        console.error(`Failed to ${status.toLowerCase()} application:`, error.message);
+        alert(`Failed to update application status: ${error.message}`);
         return;
     }
 
-    const clientEmail = userData.user.email;  // Client email from authentication
+    // Get application details to send notification
+    const { data: application } = await supabase
+        .from('applications')
+        .select('freelancer_email, jobs(title)')
+        .eq('id', applicationId)
+        .single();
 
-    // ✅ Fetch notifications where `user_email` matches the client's email
+    if (application) {
+        const message = `Your application for "${application.jobs?.title || 'the job'}" has been ${status.toLowerCase()}`;
+        await sendNotification(application.freelancer_email, message);
+    }
+
+    alert(`Application ${status.toLowerCase()} successfully!`);
+    fetchClientApplications();
+}
+
+// Function to fetch client notifications
+async function fetchClientNotifications() {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) return;
+
+    const clientEmail = userData.user.email;
+    const notifList = document.getElementById('notifications-list');
+
     const { data: notifications, error } = await supabase
         .from('notifications')
-        .select('message, created_at')
-        .eq('user_email', clientEmail)  // Matching with `user_email`
+        .select('*')
+        .eq('user_email', clientEmail)
         .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Error fetching notifications:", error.message);
+        notifList.innerHTML = "<p>Error loading notifications. Please try again.</p>";
         return;
     }
 
-    const notifList = document.getElementById('notifications-list');
-    if (!notifList) {
-        console.error("Notifications list element not found!");
-        return;
-    }
+    notifList.innerHTML = "";
 
-    notifList.innerHTML = ""; // Clear old notifications
-
-    if (notifications.length === 0) {
+    if (!notifications || notifications.length === 0) {
         notifList.innerHTML = "<p>No notifications yet.</p>";
         return;
     }
 
     notifications.forEach(notif => {
         const notifItem = document.createElement('div');
+        notifItem.classList.add('application-item');
         notifItem.innerHTML = `
-            <p><strong>Message:</strong> ${notif.message}</p>
+            <p>${notif.message}</p>
             <p><small>${new Date(notif.created_at).toLocaleString()}</small></p>
         `;
         notifList.appendChild(notifItem);
     });
-
-    console.log("Fetched client notifications:", notifications);
 }
 
+// Function to send a notification
+async function sendNotification(userEmail, message) {
+    const { error } = await supabase.from('notifications').insert([
+        { user_email: userEmail, message }
+    ]);
 
+    if (error) {
+        console.error("Failed to send notification:", error.message);
+    }
+}
 
-
+// Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            document.getElementById('logout-btn').classList.remove('hidden');
+            loadUserDashboard();
+            showSection('dashboard');
+        }
+    });
+});
 
 // Make functions accessible globally for HTML button clicks
 window.showSection = showSection;
@@ -540,10 +502,6 @@ window.logout = logout;
 window.postJob = postJob;
 window.fetchJobs = fetchJobs;
 window.applyJob = applyJob;
-window.fetchApplications = fetchApplications;
+window.fetchClientApplications = fetchClientApplications;
 window.fetchFreelancerApplications = fetchFreelancerApplications;
-window.approveApplication = approveApplication;
-window.declineApplication = declineApplication;  // ✅ Add this function
-window.loadUserDashboard = loadUserDashboard;
-window.sendNotification = sendNotification;
-window.fetchClientNotifications = fetchClientNotifications;
+window.updateApplicationStatus = updateApplicationStatus;
