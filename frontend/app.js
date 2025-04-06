@@ -293,7 +293,7 @@ async function applyJob(jobId) {
 
     // Insert application
     const { error: insertError } = await supabase.from('applications').insert([
-        { job_id: jobId, freelancer_email: freelancerEmail, status: 'Pending', client_email: jobData.client_email }
+        { job_id: jobId, freelancer_email: freelancerEmail, status: 'Pending' }
     ]);
 
     if (insertError) {
@@ -366,18 +366,17 @@ async function fetchFreelancerApplications() {
     if (userError || !userData?.user) return;
 
     const freelancerEmail = userData.user.email;
+    //const appList = document.getElementsByClassName('applications-list');
     const appList = document.getElementById('applications-list');
-
+    if (!appList) {
+      console.error("Element with id 'applications-list' not found.");
+      return;
+    }
     const { data: applications, error } = await supabase
-        .from('applications')
-        .select(`
-            id,
-            status,
-            created_at,
-            jobs (title)
-        `)
+        .from('applications_with_job_titles')
+        .select('*')
         .eq('freelancer_email', freelancerEmail)
-        .order('created_at', { ascending: false });
+        .order('status', { ascending: true });
 
     if (error) {
         console.error("Error fetching applications:", error.message);
@@ -396,12 +395,18 @@ async function fetchFreelancerApplications() {
         const appItem = document.createElement('div');
         appItem.classList.add('application-item');
         appItem.innerHTML = `
-            <h4>${app.jobs?.title || 'No title'}</h4>
+            <h4>${app.title || 'No title'}</h4>
             <p><strong>Status:</strong> ${app.status}</p>
-            <p><small>Applied on: ${new Date(app.created_at).toLocaleString()}</small></p>
+
         `;
         appList.appendChild(appItem);
     });
+        console.log("Fetched freelancer applications:", applications);
+//    applications.forEach(app => {
+//      const li = document.createElement('li');
+//      li.textContent = `Status: ${app.status}, Job Title: ${app.jobs?.title}`;
+//      appList.appendChild(li);
+//    });
 }
 
 // Function to update application status
@@ -460,15 +465,19 @@ async function fetchClientNotifications() {
         return;
     }
 
-    notifications.forEach(notif => {
-        const notifItem = document.createElement('div');
-        notifItem.classList.add('application-item');
-        notifItem.innerHTML = `
-            <p>${notif.message}</p>
-            <p><small>${new Date(notif.created_at).toLocaleString()}</small></p>
-        `;
-        notifList.appendChild(notifItem);
-    });
+notifications.forEach(notif => {
+    const notifItem = document.createElement('div');
+    notifItem.classList.add('application-item');
+    notifItem.innerHTML = `
+        <h2 style="margin: 0 0 8px 0; font-size: 18px; color: #333;">New Notification</h2>
+        <h4 style="margin: 0 0 4px 0; font-weight: normal; color: #555;">${notif.message}</h4>
+        <p style="margin: 0; font-size: 12px; color: #888;">
+            <small>${new Date(notif.created_at).toLocaleString()}</small>
+        </p>
+    `;
+    notifList.appendChild(notifItem);
+});
+
 }
 
 // Function to send a notification
